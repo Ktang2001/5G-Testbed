@@ -5,7 +5,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install -y build-essential cmake git pkg-config libfftw3-dev libmbedtls-dev \
   libsctp-dev libyaml-cpp-dev libgtest-dev libzmq3-dev libboost-program-options-dev \
-  libconfig++-dev
+  libconfig++-dev gnuradio
 
 cd /opt
 
@@ -22,7 +22,7 @@ cd srsRAN_4G && mkdir build && cd build
 cmake .. -DENABLE_ZEROMQ=ON
 make -j"$(nproc)" srsue
 
-# Network namespace for the UE
-ip netns add ue1 || true
+# Network namespaces for the 3 UEs
+for i in 1 2 3; do ip netns add ue$i || true; done
 
 echo "RAN SETUP DONE"

@@ -9,6 +9,11 @@ cu_cp:
           - plmn: "99970"
             tai_slice_support_list:
               - sst: 1
+                sd: 1
+              - sst: 2
+                sd: 1
+              - sst: 3
+                sd: 1
 
 ru_sdr:
   device_driver: zmq
@@ -33,6 +38,22 @@ cell_cfg:
       dci_format_0_1_and_1_1: false
   prach:
     prach_config_index: 1
+  slicing:
+    - sst: 1          # eMBB
+      sd: 1
+      sched_cfg:
+        min_prb_policy_ratio: 20
+        max_prb_policy_ratio: 100
+    - sst: 2          # URLLC
+      sd: 1
+      sched_cfg:
+        min_prb_policy_ratio: 30
+        max_prb_policy_ratio: 100
+    - sst: 3          # mMTC
+      sd: 1
+      sched_cfg:
+        min_prb_policy_ratio: 0
+        max_prb_policy_ratio: 10
 
 log:
   filename: /tmp/gnb.log
