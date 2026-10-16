@@ -5,7 +5,8 @@ from gnuradio import gr, blocks, zeromq
 
 SRATE = 23.04e6
 GNB_TX, GNB_RX = 2000, 2001
-UE_PORTS = [2100, 2200, 2300] 
+UE_PORTS = [2100, 2200, 2300]  
+UE_UL_GAINS = [1.0, 0.5, 0.25]
 
 
 class Broker(gr.top_block):
@@ -27,7 +28,8 @@ class Broker(gr.top_block):
             ue_rx = zeromq.rep_sink(c, 1, f"tcp://127.0.0.1:{port}", 100, False, -1)
             self.connect(dl, ue_rx)
             ue_tx = zeromq.req_source(c, 1, f"tcp://127.0.0.1:{port + 1}", 100, False, -1)
-            self.connect(ue_tx, (ul_sum, i))
+            ue_gain = blocks.multiply_const_cc(UE_UL_GAINS[i])
+            self.connect(ue_tx, ue_gain, (ul_sum, i))
 
 
 if __name__ == "__main__":
