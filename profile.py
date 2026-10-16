@@ -11,7 +11,6 @@ Then on the 'ran' node, open five terminals and run in this order:
     python3 /local/repository/scripts/zmq-broker.py
 
 Slices: UE1 eMBB (10.45.0.1), UE2 URLLC (10.46.0.1), UE3 mMTC (10.47.0.1).
-Test with: sudo ip netns exec ue1 ping 10.45.0.1
 """
 
 import geni.portal as portal
