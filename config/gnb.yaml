@@ -39,6 +39,7 @@ cell_cfg:
       dci_format_0_1_and_1_1: false
   prach:
     prach_config_index: 1
+    total_nof_ra_preambles: 64   # advertise in SIB1 so srsUE picks random preambles
   slicing:
     - sst: 1          # eMBB
       sd: 1
