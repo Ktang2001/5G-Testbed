@@ -24,6 +24,7 @@ Safety: refuses to run unless this is the srsRAN testbed node.
 import os
 import sys
 from gnuradio import gr, blocks, zeromq
+from gnuradio import analog   # noise_source_c lives here, not in blocks
 
 SRATE = 23.04e6
 GNB_TX, GNB_RX = 2000, 2001
@@ -56,7 +57,7 @@ class AttackBroker(gr.top_block):
         if jam_dl:
             dl_add = blocks.add_vcc(1)
             self.connect(dl, (dl_add, 0))
-            self.connect(blocks.noise_source_c(blocks.GR_GAUSSIAN, jam_amp, 0),
+            self.connect(analog.noise_source_c(analog.GR_GAUSSIAN, jam_amp, 0),
                          (dl_add, 1))
             dl_feed = dl_add
         else:
@@ -87,7 +88,7 @@ class AttackBroker(gr.top_block):
 
         # Uplink jamming noise, added last.
         if jam_ul:
-            self.connect(blocks.noise_source_c(blocks.GR_GAUSSIAN, jam_amp, 1),
+            self.connect(analog.noise_source_c(analog.GR_GAUSSIAN, jam_amp, 1),
                          (ul_sum, n_in))
             n_in += 1
 
