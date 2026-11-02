@@ -1,8 +1,8 @@
 # 5G testbed attack experiments
 
 Measured demonstrations of three attacks on the isolated POWDER srsRAN ZMQ
-testbed — **slice starvation**, **jamming**, and **flooding** (control-plane and
-data-plane) — each paired with the defense. This is defensive security research:
+testbed  **slice starvation**, **jamming**, and **flooding** (control-plane and
+data-plane) each paired with the defense. This is defensive security research:
 the point is to make each failure visible and show the mitigation.
 
 | Experiment        | Script              | Layer          |
@@ -14,8 +14,6 @@ the point is to make each failure visible and show the mitigation.
 
 All scripts share `lib-guard.sh` and will not run anywhere but this testbed
 (see **Safeguards** below).
-
----
 
 ## 1. Slice resource-starvation experiment
 
@@ -48,13 +46,6 @@ sudo ./starvation-demo.sh            # attacker=UE1, victim=UE3, sink=UE2, 30s
 sudo ./stop.sh                       # if you interrupt it
 ```
 
-Optional arguments: `sudo ./starvation-demo.sh <attacker> <victim> <sink> <secs>`.
-The victim's throughput drops and RTT rises while the attacker runs. To mitigate,
-raise mMTC's `min_prb_policy_ratio` in `config/gnb.yaml`, restart the gNB, and
-re-run: the starvation shrinks. That before/after is the result.
-
----
-
 ## 2. Jamming experiment
 
 `attack-broker.py` is a drop-in replacement for `zmq-broker.py` that injects
@@ -77,8 +68,6 @@ then restart the normal `zmq-broker.py`. `jam_db` is noise amplitude in dB:
 `-10` mild, `-3` moderate, `0` strong, `+6` severe. The defense discussion is
 about detection (SINR/BLER monitoring) and resilience (coding, frequency agility);
 in this sim you mainly observe the degradation curve vs `jam_db`.
-
----
 
 ## 3. Flooding experiments
 
@@ -116,19 +105,7 @@ sudo ./flood-data.sh 1 3 2 20       # attacker=UE1, victim=UE3, probe=UE2, 20s
 The victim's RTT and loss jump during the flood. The mitigation is again slice
 isolation — a PRB floor keeps the victim usable.
 
----
-
-## Safeguards
-
-None of these run against a real network. `lib-guard.sh` (and a check inside
-`attack-broker.py`) abort unless they find, together: srsUE and the gNB built from
-source, the POWDER `/local/repository` mountpoint, and namespaces `ue1/ue2/ue3`.
-IP traffic is only ever generated toward the testbed slice subnets
-(`10.45/46/47.0.0/16`); any other target is refused. Jamming noise exists only in
-the ZMQ sample stream. Every load is time-bounded, not open-ended. The rogue
-RACH UEs use bogus IMSIs that the core rejects, so they never get a session.
-
 ## Note on absolute numbers
 
 The ZMQ-simulated RF caps throughput well below real radio, so read the
-**relative** change (percent drop, RTT ratio), not the absolute Mbit/s.
+relative change (percent drop, RTT ratio), not the absolute Mbit/s.
