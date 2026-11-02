@@ -37,13 +37,13 @@ TP="$(ip netns exec "ue$UE" iperf3 -c "$SINK_IP" -p "$PORT" --connect-timeout 30
 try:
     d=json.load(sys.stdin); print("%.2f"%(d["end"]["sum_received"]["bits_per_second"]/1e6))
 except Exception:
-    print("0.00")')"
+    print("0.00")' || true)"
 
 # RTT and loss.
 read -r RTT LOSS <<<"$(ip netns exec "ue$UE" ping -n -c 10 -i 0.2 "$SINK_IP" 2>/dev/null | awk '
     /packet loss/ { for (i=1;i<=NF;i++) if ($i ~ /%$/) loss=$i }
     /rtt|round-trip/ { split($4,a,"/"); rtt=a[2] }
-    END { print (rtt==""?"n/a":rtt), (loss==""?"n/a":loss) }')"
+    END { print (rtt==""?"n/a":rtt), (loss==""?"n/a":loss) }' || true)"
 
 mkdir -p /local/results
 REPORT=/local/results/measure.csv
