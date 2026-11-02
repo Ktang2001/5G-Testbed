@@ -91,16 +91,25 @@ echo "      throughput ${ATK_TP} Mbit/s   avg RTT ${ATK_RTT} ms"
 wait "$ATTACK_PID" 2>/dev/null || true
 echo
 
-# Report.
+# Report (printed and saved to /local/results for export).
 DROP="$(python3 -I -c "b=$BASE_TP or 0; a=$ATK_TP or 0; print('%.0f'%(100*(b-a)/b) if b>0 else 'n/a')")"
-echo "=================== RESULT ==================="
-printf "victim UE%s throughput : %7s -> %7s Mbit/s  (%s%% lost)\n" \
-    "$VICTIM" "$BASE_TP" "$ATK_TP" "$DROP"
-printf "victim UE%s avg RTT     : %7s -> %7s ms\n" \
-    "$VICTIM" "$BASE_RTT" "$ATK_RTT"
-echo "---------------------------------------------"
-echo "Interpretation: the single cell's PRBs are shared across slices."
-echo "When UE$ATTACKER saturates them, the gNB scheduler allocates per the"
-echo "slice min/max PRB ratios in config/gnb.yaml. mMTC (max 10% PRB) has no"
-echo "floor, so it starves; raising its min_prb_policy_ratio is the defense."
-echo "============================================="
+mkdir -p /local/results
+REPORT="/local/results/starvation-$(date +%Y%m%d-%H%M%S).txt"
+{
+    echo "=================== RESULT ==================="
+    echo "experiment : slice starvation"
+    echo "when       : $(date -Is)"
+    echo "attacker UE$ATTACKER -> sink UE$SINK ($SINK_IP), victim UE$VICTIM, attack ${ATTACK_SECS}s"
+    printf "victim UE%s throughput : %7s -> %7s Mbit/s  (%s%% lost)\n" \
+        "$VICTIM" "$BASE_TP" "$ATK_TP" "$DROP"
+    printf "victim UE%s avg RTT     : %7s -> %7s ms\n" \
+        "$VICTIM" "$BASE_RTT" "$ATK_RTT"
+    echo "---------------------------------------------"
+    echo "Interpretation: the single cell's PRBs are shared across slices."
+    echo "When UE$ATTACKER saturates them, the gNB scheduler allocates per the"
+    echo "slice min/max PRB ratios in config/gnb.yaml. mMTC (max 10% PRB) has no"
+    echo "floor, so it starves; raising its min_prb_policy_ratio is the defense."
+    echo "============================================="
+} | tee "$REPORT"
+cp -f /tmp/starve-attacker.json "${REPORT%.txt}-attacker.json" 2>/dev/null || true
+echo "Report saved: $REPORT"

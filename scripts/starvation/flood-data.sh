@@ -58,9 +58,17 @@ read -r ATK_RTT ATK_LOSS <<<"$(probe)"
 echo "under flood victim: RTT ${ATK_RTT} ms, loss ${ATK_LOSS}"
 wait "$FLOOD_PID" 2>/dev/null || true
 
-echo "=================== RESULT ==================="
-printf "victim UE%s RTT  : %7s -> %7s ms\n"  "$VICTIM" "$BASE_RTT" "$ATK_RTT"
-printf "victim UE%s loss : %7s -> %7s\n"     "$VICTIM" "$BASE_LOSS" "$ATK_LOSS"
-echo "A packet flood toward the victim inflates its RTT and loss. The defense"
-echo "is the same slice isolation lever: a PRB floor keeps the victim usable."
-echo "============================================="
+mkdir -p /local/results
+REPORT="/local/results/flood-data-$(date +%Y%m%d-%H%M%S).txt"
+{
+    echo "=================== RESULT ==================="
+    echo "experiment : data-plane UDP flood"
+    echo "when       : $(date -Is)"
+    echo "attacker UE$ATTACKER -> victim UE$VICTIM ($VICTIM_IP), probe UE$PROBE, ${SECS}s"
+    printf "victim UE%s RTT  : %7s -> %7s ms\n"  "$VICTIM" "$BASE_RTT" "$ATK_RTT"
+    printf "victim UE%s loss : %7s -> %7s\n"     "$VICTIM" "$BASE_LOSS" "$ATK_LOSS"
+    echo "A packet flood toward the victim inflates its RTT and loss. The defense"
+    echo "is the same slice isolation lever: a PRB floor keeps the victim usable."
+    echo "============================================="
+} | tee "$REPORT"
+echo "Report saved: $REPORT"
